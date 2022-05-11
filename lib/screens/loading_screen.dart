@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:clima_flutter/services/location.dart';
 
 class LoadingScreen extends StatefulWidget {
   @override
@@ -7,18 +7,16 @@ class LoadingScreen extends StatefulWidget {
 }
 
 class _LoadingScreenState extends State<LoadingScreen> {
+  late Location location;
+
   void initState() {
     super.initState();
     getLocation();
   }
 
   void getLocation() async {
-    LocationPermission permission = await Geolocator.requestPermission();
-
     try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.low);
-      print(position);
+      location = Location();
     } catch (e) {
       print(e);
     }
@@ -37,11 +35,25 @@ class _LoadingScreenState extends State<LoadingScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: TextButton(
-          onPressed: () {
-            // getLocation();
-          },
-          child: Text('Get Location!!!'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextButton(
+              onPressed: () {
+                location.isPositionSet()
+                    ? print('lon: ${location.longitude.toString()}, '
+                        'lat:${location.latitude.toString()}')
+                    : print('Position is not set.');
+              },
+              child: Text('Is loc set!!!'),
+            ),
+            TextButton(
+              onPressed: () {
+                location = Location();
+              },
+              child: Text('Get Location!!!'),
+            ),
+          ],
         ),
       ),
     );
