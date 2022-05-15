@@ -2,36 +2,68 @@ import 'package:geolocator/geolocator.dart';
 import 'package:async/async.dart';
 
 class Location {
-  late final Future<Position> position;
+  late final Position position;
   late final latitude;
   late final longitude;
-  late final bool _isSet;
+  late final LocationPermission locationPermission;
+  bool isPositionSet = false;
+  bool isLocationPermissionGranted = false;
 
   Location() {
+    getLocationPermission();
     getCurrentLocation();
   }
 
-  void getCurrentLocation() {
-    // desiredAccuracy : low is not working on emulator! :(
-    position =
-        Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
-    position.then((value) {
-      longitude = value.longitude;
-      latitude = value.latitude;
-      _isSet = true;
-    });
+  // void checkLocationService() {
+  //   Geolocator.isLocationServiceEnabled()
+  //       .then((value) => isLocationServiceEnabled = value);
+  // }
+
+  // void requestLocationService() {
+  //   Geolocator.isLocationServiceEnabled()
+  //       .then((value) => isLocationServiceEnabled = value);
+  // }
+
+  void getLocationPermission() async {
+    try {
+      await Geolocator.requestPermission().then((value) {
+        if (value == LocationPermission.always ||
+            value == LocationPermission.whileInUse) {
+          isLocationPermissionGranted = true;
+          print('Location permission granted!!');
+        } else {
+          print('Not granted? $value.toString()');
+        }
+      }).catchError((onError) {
+        print('Error: $onError.toString()');
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 
-  bool isPositionSet() {
-    bool _;
+  void getCurrentLocation() async {
     try {
-      // This is initialised as true only
-      // if not initialised then throws an error
-      _ = _isSet;
+      position = await Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.best);
+      longitude = position.longitude;
+      latitude = position.latitude;
+      isPositionSet = true;
     } catch (e) {
-      _ = false;
+      print(e);
     }
-    return _;
+
+    // await Geolocator.getCurrentPosition(
+    //         desiredAccuracy: LocationAccuracy.best,
+    //         forceAndroidLocationManager: false)
+    //     .then((value) {
+    //   longitude = value.longitude;
+    //   latitude = value.latitude;
+    //   isPositionSet = true;
+    //   print('position is set');
+    // }).catchError((onError) {
+    //   print('Error: $onError.toString()');
+    // });
   }
 }
 
