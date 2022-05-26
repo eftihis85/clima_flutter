@@ -2,10 +2,10 @@ import 'package:geolocator/geolocator.dart';
 import 'package:async/async.dart';
 
 class Location {
-  late final Position position;
-  late final latitude;
-  late final longitude;
-  late final LocationPermission locationPermission;
+  Position? position;
+  double? latitude;
+  double? longitude;
+  LocationPermission? locationPermission;
   bool isPositionSet = false;
   bool isLocationPermissionGranted = false;
 
@@ -42,12 +42,12 @@ class Location {
     }
   }
 
-  void getCurrentLocation() async {
+  Future<void> getCurrentLocation() async {
     try {
       position = await Geolocator.getCurrentPosition(
           desiredAccuracy: LocationAccuracy.best);
-      longitude = position.longitude;
-      latitude = position.latitude;
+      longitude = position!.longitude;
+      latitude = position!.latitude;
       isPositionSet = true;
     } catch (e) {
       print(e);
